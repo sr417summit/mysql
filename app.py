@@ -29,7 +29,6 @@ conn = mysql.connector.connect(
   database="earthquake"
 )
 
-
 @app.route('/',methods = ["GET","POST"])
 def index():
  
@@ -40,7 +39,8 @@ def state():
     get_year = request.form["year"]
     get_year2 = request.form["year1"]
     #sql = "select * from test where time in %s, (get_year)"
-    sql = """select * from test where time between %s and %s"""
+    #sql = """select * from test where time between %s and %s"""
+    sql = """ select * from earthquake.test where mag in (select  max(mag) from earthquake.test where time between %s and %s) """
     #query = """Update employee set Salary = %s where id = %s"""
     tuple1 = (get_year,get_year2)
     #tuple1 = (1980,1990)
@@ -53,9 +53,37 @@ def state():
         df2 = pd.DataFrame(list(x)).T
         df = pd.concat([df,df2])
     df.to_html('state.html')
-    return render_template('state.html',tables = [df.to_html()])
+    return render_template('state.html',tables = [df.to_html()],titles = ['time','latitude','longitude','mag','net','id'])
+
+@app.route('/latlong',methods = ["GET","POST"])
+def latlong():
+    return render_template('latlong.html')
+
+@app.route('/allplaces',methods = ["GET","POST"])
+def allplaces():
+    lat = int(request.form["lat"])
+    long = int(request.form["long"])
+    #lat = 14
+    #long = 124
+    latminus = lat-2
+    latplus = lat + 2
+    longminus = long -2
+    longplus = long + 2
+    sql = """ select * from earthquake.test where latitude between %s and %s and longitude between %s and %s;"""
+    data = (latminus,latplus,longminus,longplus)
+    mycursor = conn.cursor()
+    mycursor.execute(sql,data)
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame()
+    for x in myresult:
+        df2 = pd.DataFrame(list(x)).T
+        df = pd.concat([df,df2])
+    df.to_html('allplaces.html')
+
+    return render_template('allplaces.html',tables = [df.to_html()],titles = ['time','latitude','longitude','mag','net','id'])
+
+
+
 
 if __name__ == "__main__":
  app.run(host='0.0.0.0', port=8000, debug = True)
-
- 
