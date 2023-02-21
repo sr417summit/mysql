@@ -131,13 +131,13 @@ def dist_out():
     lat2 = int(request.form["lat2"])
     long1 = int(request.form["long1"])
     long2 = int(request.form["long2"])
-    dist = int(request.form["dist"])
-    lat1 = (lat1 + (dist/111))
-    lat2 = (lat2 + (dist/111))
-    long1 = (long1 + (dist/111))
-    long2 = (long2 + (dist/111))
+    #dist = int(request.form["dist"])
+    #lat1 = (lat1 + (dist/111))
+    #lat2 = (lat2 + (dist/111))
+    #long1 = (long1 + (dist/111))
+    #long2 = (long2 + (dist/111))
  
-    sql = """ select * from earthquake.upload where latitude  between %s and %s and longitude between %s and %s;"""
+    sql = """ select * from earthquake.test2 where lat  between %s and %s and lon between %s and %s;"""
     data = (lat1,lat2,long1,long2)
     mycursor = conn.cursor()
     mycursor.execute(sql,data)
@@ -148,7 +148,7 @@ def dist_out():
         df = pd.concat([df,df2])
     df.to_html('dist_out.html')
 
-    return render_template('dist_out.html',tables = [df.to_html()],titles = ['timestamp',	'latitude',	'longitude',	'depth',	'mag',	'magType',	'nst',	'gap',	'dmin',	'rms',	'net',	'id',	'updated',	'type',	'horizontalError',	'depthError',	'magError',	'magNst',	'status',	'locationSource',	'magSource',	'Date',	'Time',	'place'])
+    return render_template('dist_out.html',tables = [df.to_html()],titles = ['City',	'State',	'Population',	'lat',	'lon'])
 
 @app.route('/del_mag',methods = ["GET","POST"])
 def del_mag():
@@ -171,6 +171,33 @@ def mdelmag():
         df = pd.concat([df,df2])
     df.to_html('delmag.html')
     return render_template('dist_out.html',tables = [df.to_html()],titles = ['timestamp',	'latitude',	'longitude',	'depth',	'mag',	'magType',	'nst',	'gap',	'dmin',	'rms',	'net',	'id',	'updated',	'type',	'horizontalError',	'depthError',	'magError',	'magNst',	'status',	'locationSource',	'magSource',	'Date',	'Time',	'place'])
+
+@app.route('/pop',methods = ["GET","POST"])
+def pop():
+    return render_template('pop.html')
+
+@app.route('/disp_pop',methods = ["GET","POST"])
+def disp_pop():
+    pop1 = int(request.form["pop1"])
+    pop2 = int(request.form["pop2"])
+    num =  int(request.form["num"])
+  
+ 
+    sql = """ (select * from earthquake.test2 where Population >= %s or Population <= %s order by Population desc limit %s)
+               union
+              (select * from earthquake.test2 where Population >= %s or Population <= %s order by Population asc limit %s)  ;"""
+    data = (pop1,pop2,num,pop1,pop2,num)
+    mycursor = conn.cursor()
+    mycursor.execute(sql,data)
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame()
+    for x in myresult:
+        df2 = pd.DataFrame(list(x)).T
+        df = pd.concat([df,df2])
+    df.to_html('dist_out.html')
+
+    return render_template('dist_out.html',tables = [df.to_html()],titles = ['City','State','Population','lat',	'lon'])
+
 
 if __name__ == "__main__":
  app.run(host='0.0.0.0', port=8000, debug = True)
