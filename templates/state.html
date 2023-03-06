@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    
-    <p>Elapsed time : {{ time_el }}</p>
     <title>My Page</title>
   </head>
   <body>
-    <form method="POST" action="/output">
+    <p>Elapsed time for Query 1 Without Caching: {{ time_el_1 }}</p>
+    <p>Elapsed time for Query 2 Without Caching: {{ time_el }}</p>
+    <form method="POST" action=".">
       <p>Enter State:</p>
       <p><input type="text" name="net"></p>
       <input type="submit" value="Get Data">
     </form>
     <h1>Table 1</h1>
     {{ table1 | safe }}
- 
-    
+    <h1>Table 2</h1>
+    {{ table2 | safe }}
   </body>
 </html>

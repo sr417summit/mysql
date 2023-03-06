@@ -2,13 +2,16 @@
 <html>
   <head>
     
-    <p>Elapsed time : {{ time_el }}</p>
+    <p>Total Time to Execute : {{ total_time }}</p>
+    <p>The source is: {{ flag }}</p>
+
     <title>My Page</title>
   </head>
   <body>
-    <form method="POST" action="/output">
+    <form method="POST" action="/output3">
       <p>Enter State:</p>
       <p><input type="text" name="net"></p>
+      <p><input type="number" name="count" step="any"></p>
       <input type="submit" value="Get Data">
     </form>
     <h1>Table 1</h1>
