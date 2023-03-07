@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html>
+  <header>
+    <h1>WELCOME</h1>
+    <p>Srividya Ramachandra</p>
+    <p>1002008122</p>
+  </header>
   <head>
-    
     <p>Total Time to Execute : {{ total_time }}</p>
     <p>The source is: {{ flag }}</p>
 
@@ -10,7 +14,10 @@
   <body>
     <form method="POST" action="/output3">
       <p>Enter State:</p>
-      <p><input type="text" name="net"></p>
+      <p><input type="text" name="State"></p>
+      <p>Enter Enter Rank:</p>
+      <p><input type="number" name="Rank" step="any"></p>
+      <p>Enter Counter:</p>
       <p><input type="number" name="count" step="any"></p>
       <input type="submit" value="Get Data">
     </form>
