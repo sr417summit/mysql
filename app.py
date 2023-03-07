@@ -21,16 +21,21 @@ conn = mysql.connector.connect(
 @app.route('/', methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        state = request.form["net"]
+        state = request.form["State"]
+        r1 = int(request.form["Rank1"])
+        #r2 = int(request.form["Rank2"])
         s1_time = time.perf_counter()
-        sql = "SELECT * FROM earthquake.assign3 WHERE net = %s;"
+        #sql = """SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"""
+        sql = """SELECT * FROM earthquake.assign3 WHERE State = %s;"""
+        #params = (state,r1,r2)
+        #params = (state,r1)
         mycursor = conn.cursor()
         mycursor.execute(sql, (state,))
         myresult = mycursor.fetchall()
         df_2 = pd.DataFrame(myresult)
         e1_time = time.perf_counter()
         time_el = (e1_time - s1_time)
-        return render_template('state.html', table2=df_2.to_html(), time_el=time_el)
+        return render_template('state.html', table2=df_2.to_html(),titles = ['City',	'State',	'Rank',	'Population',	'lat',	'lon'], time_el=time_el)
     else:
         s_time = time.perf_counter()
         sql = "SELECT * FROM earthquake.assign3;"
@@ -41,7 +46,7 @@ def index():
         e_time = time.perf_counter()
         time_el_1 = (e_time - s_time)
         return render_template('state.html', table1=df_1.to_html(), time_el_1=time_el_1)
-
+""""
 @app.route('/output', methods=["GET", "POST"])
 def cache_out():
     if request.method == "POST":
@@ -73,21 +78,23 @@ def cache_out():
         time_el_1 = (e_time - s_time)
         message = "This is from the database"
         return render_template('cache.html', table1=df_1.to_html(), time_el_1=time_el_1,message=message)
-    
+   
 @app.route('/output2', methods=["GET", "POST"])
 def cache_data():
     time_list = []
     data_list = []
     if request.method == "POST":
         state = request.form["net"]
+        mag = float(request.form["mag"])
         count = int(request.form["count"])
+        params = (state,mag)
         for c in range(0,count):
             s1_time = time.perf_counter()
             data = cache.get(state)
             if data is None:
-                sql = "SELECT * FROM earthquake.assign3 WHERE net = %s;"
+                sql = "SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"
                 mycursor = conn.cursor()
-                mycursor.execute(sql, (state,))
+                mycursor.execute(sql, params)
                 myresult = mycursor.fetchall()
                 data = pd.DataFrame(myresult)
                 cache.set(state, data)
@@ -116,24 +123,29 @@ def cache_data():
         total_time = sum(time_list)
         message = "This is is from the Database"
         return render_template('cache1.html', table1=df_1.to_html(),total_time=total_time)
-
+"""
 @app.route('/output3', methods=["GET", "POST"])
 def cache_3():
     time_list = []
     data_list = []
     if request.method == "POST":
-        state = request.form["net"]
+        state = request.form["State"]
+        r1 = int(request.form["Rank"])
         count = int(request.form["count"])
+        #params = (state,r1)
         for c in range(0,count):
             s1_time = time.perf_counter()
             data = cache.get(state)
             if data is None:
-                sql = "SELECT * FROM earthquake.assign3 WHERE net = %s;"
+                #sql = "SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"
+                sql = "SELECT * FROM earthquake.assign3 WHERE State = %s;"
                 mycursor = conn.cursor()
                 mycursor.execute(sql, (state,))
+               
                 myresult = mycursor.fetchall()
                 data = pd.DataFrame(myresult)
                 cache.set(state, data)
+                
             e1_time = time.perf_counter()
             time_el = (e1_time - s1_time)
             time_list.append(time_el)
@@ -149,7 +161,7 @@ def cache_3():
         
         s_time = time.perf_counter()
         #state = request.form["net"]
-        sql = "SELECT * FROM earthquake.assign3 WHERE net = 'ak';"
+        sql = "SELECT * FROM earthquake.assign3 WHERE State = 'California';"
         mycursor = conn.cursor()
         mycursor.execute(sql)
         myresult = mycursor.fetchall()
