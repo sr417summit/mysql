@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="chart" style="width: 600px; height: 400px;"></div>
+
+  <script>
+    var chart_data = JSON.parse('{{ chart_data | safe }}');
+    Plotly.newPlot('chart', chart_data.data, chart_data.layout);
+  </script>
+</body>
+</html>

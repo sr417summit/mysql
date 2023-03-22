@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Population Chart</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <div id="plot_top"></div>
+    <div id="plot_bottom"></div>
+
+    <script>
+      var plot_top = JSON.parse('{{ plot_top | safe }}');
+      var plot_bottom = JSON.parse('{{ plot_bottom | safe }}');
+
+      var plot_top_layout = {
+        title: 'Top 3 States with Population above Mean',
+        xaxis: { title: 'State' },
+        yaxis: { title: 'Population' }
+      };
+
+      var plot_bottom_layout = {
+        title: 'Bottom 3 States with Population below Mean',
+        xaxis: { title: 'State' },
+        yaxis: { title: 'Population' }
+      };
+
+      Plotly.newPlot('plot_top', plot_top.data, plot_top_layout);
+      Plotly.newPlot('plot_bottom', plot_bottom.data, plot_bottom_layout);
+    </script>
+  </body>
+</html>

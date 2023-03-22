@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Population</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Population</h1>
+    <div id="chart"></div>
+    {{ table_html | safe }}
+    <script>
+        var chart_data = JSON.parse('{{ chart_data | safe }}');
+        Plotly.newPlot('chart', chart_data.data, chart_data.layout);
+    </script>
+</body>
+</html>
