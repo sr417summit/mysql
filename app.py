@@ -1,177 +1,155 @@
 #Srividya Ramachandra student id:1002008122
-from flask import Flask, render_template
-from flask_caching import Cache
-import mysql.connector
-import pandas as pd
-import time
+from flask import Flask
 from flask import render_template
 from flask import request
 from flask import url_for
-app = Flask(__name__)
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+from PIL import Image
+import csv
+import pandas as pd
+from PIL import Image
+import base64
+import io
+from flask import Flask, request, render_template, redirect, url_for
+from werkzeug.utils import secure_filename
+from azure.storage.blob import BlobServiceClient
+import os
+from io import BytesIO
+from IPython.display import HTML
+import mysql.connector
+from flask import jsonify
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import json
+import plotly
+import matplotlib.pyplot as plt
+import base64
 
+app = Flask(__name__, static_folder='static', static_url_path='')
 conn = mysql.connector.connect(
-  user='sxr8123', 
-  password='417Summit', 
-  host= 'sxr8123.mysql.database.azure.com', 
+  user='root', 
+  password='admin', 
+  host= 'localhost', 
   port=3306,
   database="earthquake"
 )
 
-@app.route('/', methods=["GET", "POST"])
+@app.route('/',methods = ["GET","POST"])
 def index():
-    if request.method == "POST":
-        state = request.form["State"]
-        r1 = int(request.form["Rank1"])
-        #r2 = int(request.form["Rank2"])
-        s1_time = time.perf_counter()
-        #sql = """SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"""
-        sql = """SELECT * FROM earthquake.assign3 WHERE State = %s;"""
-        #params = (state,r1,r2)
-        #params = (state,r1)
-        mycursor = conn.cursor()
-        mycursor.execute(sql, (state,))
-        myresult = mycursor.fetchall()
-        df_2 = pd.DataFrame(myresult)
-        e1_time = time.perf_counter()
-        time_el = (e1_time - s1_time)
-        return render_template('state.html', table2=df_2.to_html(),titles = ['City',	'State',	'Rank',	'Population',	'lat',	'lon'], time_el=time_el)
-    else:
-        s_time = time.perf_counter()
-        sql = "SELECT * FROM earthquake.assign3;"
-        mycursor = conn.cursor()
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        df_1 = pd.DataFrame(myresult)
-        e_time = time.perf_counter()
-        time_el_1 = (e_time - s_time)
-        return render_template('state.html', table1=df_1.to_html(), time_el_1=time_el_1)
-""""
-@app.route('/output', methods=["GET", "POST"])
-def cache_out():
-    if request.method == "POST":
-        state = request.form["net"]
-        s1_time = time.perf_counter()
-        data = cache.get(state)
-        if data is None:
-            sql = "SELECT * FROM earthquake.assign3 WHERE net = %s;"
-            mycursor = conn.cursor()
-            mycursor.execute(sql, (state,))
-            myresult = mycursor.fetchall()
-            data = pd.DataFrame(myresult)
-            cache.set(state, data)
-            cache.set(state, data)
+    return render_template('index.html')
+
+@app.route('/mag_out', methods=['POST'])
+def mag_out():
+    get_mag1 = int(request.form["mag1"])
+    get_mag2 = int(request.form["mag2"])
+    sql = """ select net, count(net),max(mag) from earthquake.Upload where mag between %s and %s group by net order by net; """
+    tuple1 = (get_mag1,get_mag2)
+    mycursor = conn.cursor()
+    mycursor.execute(sql, tuple1)
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame(myresult, columns=['net', 'count', 'max_mag'])
     
-        e1_time = time.perf_counter()
-        time_el = (e1_time - s1_time)
-        message = "This is from the cache"
-        return render_template('cache.html', table1=data.to_html().strip(), time_el=time_el,message=message)
-    else:
-        s_time = time.perf_counter()
-        #state = request.form["net"]
-        sql = "SELECT * FROM earthquake.assign3 WHERE net = 'ak';"
-        mycursor = conn.cursor()
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        df_1 = pd.DataFrame(myresult)
-        e_time = time.perf_counter()
-        time_el_1 = (e_time - s_time)
-        message = "This is from the database"
-        return render_template('cache.html', table1=df_1.to_html(), time_el_1=time_el_1,message=message)
-   
-@app.route('/output2', methods=["GET", "POST"])
-def cache_data():
-    time_list = []
-    data_list = []
-    if request.method == "POST":
-        state = request.form["net"]
-        mag = float(request.form["mag"])
-        count = int(request.form["count"])
-        params = (state,mag)
-        for c in range(0,count):
-            s1_time = time.perf_counter()
-            data = cache.get(state)
-            if data is None:
-                sql = "SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"
-                mycursor = conn.cursor()
-                mycursor.execute(sql, params)
-                myresult = mycursor.fetchall()
-                data = pd.DataFrame(myresult)
-                cache.set(state, data)
-            e1_time = time.perf_counter()
-            time_el = (e1_time - s1_time)
-            time_list.append(time_el)
-            data_list.append(data)
-            data_df = pd.DataFrame(data)
-            #data_df['Time']=time_list
-            #data_df['Data'] = data_list
-            total_time = sum(time_list)
-        
-        return render_template('cache1.html', table1=data_df.to_html().strip(),total_time=total_time)
-    else:
-        
-        s_time = time.perf_counter()
-        #state = request.form["net"]
-        sql = "SELECT * FROM earthquake.assign3 WHERE net = 'ak';"
-        mycursor = conn.cursor()
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        df_1 = pd.DataFrame(myresult)
-        e_time = time.perf_counter()
-        time_el_1 = (e_time - s_time)
-        time_list.append(time_el_1)
-        total_time = sum(time_list)
-        message = "This is is from the Database"
-        return render_template('cache1.html', table1=df_1.to_html(),total_time=total_time)
-"""
-@app.route('/output3', methods=["GET", "POST"])
-def cache_3():
-    time_list = []
-    data_list = []
-    if request.method == "POST":
-        state = request.form["State"]
-        r1 = int(request.form["Rank"])
-        count = int(request.form["count"])
-        #params = (state,r1)
-        for c in range(0,count):
-            s1_time = time.perf_counter()
-            data = cache.get(state)
-            if data is None:
-                #sql = "SELECT * FROM earthquake.assign3 WHERE State = %s and Rank > %s;"
-                sql = "SELECT * FROM earthquake.assign3 WHERE State = %s;"
-                mycursor = conn.cursor()
-                mycursor.execute(sql, (state,))
-               
-                myresult = mycursor.fetchall()
-                data = pd.DataFrame(myresult)
-                cache.set(state, data)
-                
-            e1_time = time.perf_counter()
-            time_el = (e1_time - s1_time)
-            time_list.append(time_el)
-            data_list.append(data)
-        
-        data_df = pd.concat([pd.Series(time_list), pd.Series(data_list)], axis=1)
-        data_df.columns = ['Time', 'Data']
-        data_df['Data'] = data_df['Data'].apply(lambda x: ', '.join(map(str, x.values)))
-        data_df = pd.melt(data_df, id_vars=['Time'], value_vars=['Data'])
-        total_time = sum(time_list)
-        return render_template('cache2.html', table1=data_df.to_html(index=False), total_time=total_time)
-    else:
-        
-        s_time = time.perf_counter()
-        #state = request.form["net"]
-        sql = "SELECT * FROM earthquake.assign3 WHERE State = 'California';"
-        mycursor = conn.cursor()
-        mycursor.execute(sql)
-        myresult = mycursor.fetchall()
-        df_1 = pd.DataFrame(myresult)
-        e_time = time.perf_counter()
-        time_el_1 = (e_time - s_time)
-        time_list.append(time_el_1)
-        total_time = sum(time_list)
-        message = "This is is from the Database"
-        return render_template('cache2.html', table1=df_1.to_html(),total_time=total_time)
+    # Create a bar chart using Plotly
+    data = [go.Bar(x=df['net'], y=df['count'])]
+    layout = go.Layout(title='Number of Earth Quakes by State in the Given Range', xaxis={'title': 'State'},
+    yaxis={'title': 'Number of Occurences'})
+    fig = go.Figure(data=data, layout=layout)
+
+    # Convert the chart data to JSON string
+    chart_data = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Render the template with the chart data
+    return render_template('mag_out.html', chart_data=chart_data)
+
+@app.route('/get_pop',methods = ["GET","POST"])
+def get_pop():
+    return render_template('get_pop.html')
+
+@app.route('/population', methods=['POST'])
+def population():
+    get_pop1 = int(request.form["pop1"])
+    get_pop2 = int(request.form["pop2"])
+
+    sql = """ SELECT State, SUM(Population) FROM earthquake.assign3 WHERE Population BETWEEN %s AND %s GROUP BY State ORDER BY Sum(population) DESC;"""
+    tuple1 = (get_pop1,get_pop2)
+    mycursor = conn.cursor()
+    mycursor.execute(sql, tuple1)
+    myresult = mycursor.fetchall()
+    print(myresult)
+
+    df = pd.DataFrame(myresult, columns=['State', 'Population'])
+    
+
+    # Create a bar chart using Plotly
+    trace = go.Bar(x=df['State'], y=df['Population'])
+    layout = go.Layout(title='Population by State')
+    fig = go.Figure(data=[trace], layout=layout)
+
+    # Convert the Plotly figure to a JSON string and insert it into the template
+    #chart_json = fig.to_json()
+    chart_data = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Convert the DataFrame to an HTML table and insert it into the template
+    table_html = df.to_html(index=False)
+
+    # Render the template with the chart and table
+    return render_template('pop.html', chart_data=chart_data, table_html=table_html)
+
+@app.route('/top_pop',methods = ["GET","POST"])
+def top_pop():
+    return render_template('top_pop.html')
+
+@app.route('/disp_pop', methods=['GET','POST'])
+def disp_pop():
+    pop1 = int(request.form["pop1"])
+    pop2 = int(request.form["pop2"])
+    #num = int(request.form["num"])
+
+    sql = """ SELECT State, Population
+              FROM (
+                  SELECT State, Population
+                  FROM earthquake.assign3
+                  WHERE Population BETWEEN %s AND %s
+                  ORDER BY Population DESC
+                  LIMIT 3
+              ) top_states
+              UNION
+                  SELECT State, Population
+                  FROM (
+                      SELECT State, Population
+                      FROM earthquake.assign3
+                      WHERE Population BETWEEN %s AND %s
+                      ORDER BY Population ASC
+                      LIMIT 3
+                  ) bottom_states;"""
+    data = (pop1, pop2,pop1,pop2)
+    mycursor = conn.cursor()
+    mycursor.execute(sql, data)
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame(myresult, columns=['State', 'Population'])
+
+    # Create top chart
+    fig_top = go.Figure()
+    fig_top.add_trace(go.Bar(x=df[df['Population'] > df['Population'].mean()].State,
+                             y=df[df['Population'] > df['Population'].mean()].Population,
+                             name='Top 3 States',
+                             marker=dict(color='red')))
+    fig_top.update_layout(title='Top 3 States with Population above Mean', xaxis_title='State', yaxis_title='Population')
+
+    # Create bottom chart
+    fig_bottom = go.Figure()
+    fig_bottom.add_trace(go.Bar(x=df[df['Population'] < df['Population'].mean()].State,
+                                y=df[df['Population'] < df['Population'].mean()].Population,
+                                name='Bottom 3 States',
+                                marker=dict(color='blue')))
+    fig_bottom.update_layout(title='Bottom 3 States with Population below Mean', xaxis_title='State', yaxis_title='Population')
+
+    # Convert figures to JSON format
+    fig_top_json = json.dumps(fig_top, cls=plotly.utils.PlotlyJSONEncoder)
+    fig_bottom_json = json.dumps(fig_bottom, cls=plotly.utils.PlotlyJSONEncoder)
+
+    return render_template('disp_pop.html', plot_top=fig_top_json, plot_bottom=fig_bottom_json)
+
+
 if __name__ == "__main__":
  app.run(host='0.0.0.0', port=8000, debug = True)
 
