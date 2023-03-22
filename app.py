@@ -26,9 +26,9 @@ import base64
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 conn = mysql.connector.connect(
-  user='root', 
-  password='admin', 
-  host= 'localhost', 
+  user='sxr8123', 
+  password='417Summit', 
+  host= 'sxr8123.mysql.database.azure.com', 
   port=3306,
   database="earthquake"
 )
@@ -41,7 +41,7 @@ def index():
 def mag_out():
     get_mag1 = int(request.form["mag1"])
     get_mag2 = int(request.form["mag2"])
-    sql = """ select net, count(net),max(mag) from earthquake.Upload where mag between %s and %s group by net order by net; """
+    sql = """ select net, count(net),max(mag) from earthquake.upload where mag between %s and %s group by net order by net; """
     tuple1 = (get_mag1,get_mag2)
     mycursor = conn.cursor()
     mycursor.execute(sql, tuple1)
@@ -107,7 +107,7 @@ def disp_pop():
     sql = """ SELECT State, Population
               FROM (
                   SELECT State, Population
-                  FROM earthquake.assign3
+                  FROM earthquake.test2
                   WHERE Population BETWEEN %s AND %s
                   ORDER BY Population DESC
                   LIMIT 3
@@ -116,7 +116,7 @@ def disp_pop():
                   SELECT State, Population
                   FROM (
                       SELECT State, Population
-                      FROM earthquake.assign3
+                      FROM earthquake.test2
                       WHERE Population BETWEEN %s AND %s
                       ORDER BY Population ASC
                       LIMIT 3
@@ -149,6 +149,9 @@ def disp_pop():
 
     return render_template('disp_pop.html', plot_top=fig_top_json, plot_bottom=fig_bottom_json)
 
+
+
+    
 
 if __name__ == "__main__":
  app.run(host='0.0.0.0', port=8000, debug = True)
