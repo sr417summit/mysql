@@ -1,28 +1,14 @@
-<!DOCTYPE html>
 <html>
-  <header>
-    <h1>WELCOME</h1>
-    <p>Srividya Ramachandra</p>
-    <p>1002008122</p>
-  </header>
-  <head>
-    <title>My Page</title>
-  </head>
-  <body>
-    <p>Elapsed time for Query 1 Without Caching: {{ time_el_1 }}</p>
-    <form method="POST" action=".">
-      <p>Enter State:</p>
-      <p><input type="text" name="State"></p>
-      <p>Enter Rank 1:</p>
-      <p><input type="number" name="Rank1"></p>
-      <p>Enter Rank 2:</p>
-      <p><input type="number" name="Rank2"></p>
-
-      <input type="submit" value="Get Data">
-    </form>
-    <h1>Table 1</h1>
-    {{ table1 | safe }}
-    <h1>Table 2</h1>
-    {{ table2 | safe }}
-  </body>
-</html>
+    <header>
+        <h1>WELCOME</h1>
+        <p>Srividya Ramachandra</p>
+        <p>1002008122</p>
+      </header>
+    <body>
+        <form action = "/highest_record" method = "post">
+ >
+            <p><input type ="submit" name ="Submit"></p>
+        
+          
+        </form>
+    </body>
