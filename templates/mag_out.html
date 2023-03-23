@@ -9,6 +9,6 @@
   <script>
     var chart_data = JSON.parse('{{ chart_data | safe }}');
     Plotly.newPlot('chart', chart_data.data, chart_data.layout);
+    
   </script>
 </body>
-</html>
