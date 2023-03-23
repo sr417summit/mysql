@@ -23,6 +23,7 @@ import json
 import plotly
 import matplotlib.pyplot as plt
 import base64
+import numpy as np
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 conn = mysql.connector.connect(
@@ -106,6 +107,30 @@ def pie():
     # Render the template with the chart data
     return render_template('pop.html', chart_data=chart_data)
 
+@app.route('/top_pop',methods = ["GET","POST"])
+def top_pop():
+    return render_template('top_pop.html')
+
+@app.route('/disp_pop', methods=['POST'])
+def disp_pop():
+    get_r1 = int(request.form["pop1"])
+    get_r2 = int(request.form["pop2"])
+    mycursor = conn.cursor()
+    mycursor.execute("SELECT S, T FROM earthquake.datas WHERE R BETWEEN %s AND %s", (get_r1, get_r2))
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame(myresult, columns=['S', 'T'])
+    
+    # Create a scatter chart using Plotly
+    high_s = df['S'].quantile(0.5)
+    df['color'] = np.where(df['S'] > high_s, 'red', 'green')
+    fig = go.Figure(data=go.Scatter(x=df['S'], y=df['T'], mode='markers', marker=dict(color=df['color'])))
+    fig.update_layout(title='Scatter Chart of S vs T', xaxis_title='S', yaxis_title='T')
+
+    # Convert the chart data to JSON string
+    chart_data = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Render the template with the chart data
+    return render_template('disp_pop.html', chart_data=chart_data)
 
 
 
