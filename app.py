@@ -56,7 +56,7 @@ def mag_out():
     
     # Create a bar chart using Plotly
     data = [go.Bar(x=df['Magnitude Range'], y=df['Count'])]
-    layout = go.Layout(title='Number of Earthquakes by Magnitude Range', xaxis={'title': 'Magnitude Range'},
+    layout = go.Layout(title='Bar Chart', xaxis={'title': 'Magnitude Range'},
                        yaxis={'title': 'Count'})
     fig = go.Figure(data=data, layout=layout)
 
@@ -66,11 +66,51 @@ def mag_out():
     # Render the template with the chart data
     return render_template('mag_out.html', chart_data=chart_data)
 
+@app.route('/get_pop',methods = ["GET","POST"])
+def get_pop():
+    return render_template('get_pop.html')
+
+@app.route('/pie', methods=['POST'])
+def pie():
+    get_mag1 = int(request.form["pop1"])
+    get_mag2 = int(request.form["pop2"])
+    get_nbars = int(request.form["num"])
+    sql = """SELECT CONCAT_WS('-', FLOOR(S/{}) * {}, FLOOR(S/{}) * {} + {}) AS mag_range, COUNT(*) 
+             FROM earthquake.datas 
+             WHERE R BETWEEN %s AND %s 
+             GROUP BY mag_range 
+             ORDER BY mag_range 
+             LIMIT {}""".format((get_mag2-get_mag1+1)//get_nbars, get_mag1, (get_mag2-get_mag1+1)//get_nbars, get_mag1, (get_mag2-get_mag1+1)//get_nbars-1, get_nbars)
+    tuple1 = (get_mag1, get_mag2)
+    mycursor = conn.cursor()
+    mycursor.execute(sql, tuple1)
+    myresult = mycursor.fetchall()
+    df = pd.DataFrame(myresult, columns=['Magnitude Range', 'Count'])
+    
+    # Create a pie chart using Plotly
+    fig = go.Figure(data=[go.Pie(labels=df['Magnitude Range'], values=df['Count'], 
+                                 hole=0.4, 
+                                 sort=False, 
+                                 scalegroup='one')])
+    
+    # Set the number of slices for the pie chart
+    fig.update_traces(hole=0.4, sort=False, scalegroup='one', 
+                      pull=[0.1]*get_nbars) # change [0.1]*get_nbars to desired proportions
+    
+    layout = go.Layout(title='Pie Chart')
+    fig.update_layout(layout)
+
+    # Convert the chart data to JSON string
+    chart_data = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+
+    # Render the template with the chart data
+    return render_template('pop.html', chart_data=chart_data)
+
 
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=8000, debug = True)
+    app.run(host='0.0.0.0', port=5000, debug = True)
 
 
 
