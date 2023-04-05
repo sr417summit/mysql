@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Search Engine</title>
+  </head>
+  <body>
+    <h1>Search Engine</h1>
+    <form action="{{ url_for('search') }}" method="post">
+      <label for="text">Enter text:</label><br>
+      <textarea id="text" name="text" rows="4" cols="50"></textarea><br>
+      <label for="query">Enter query:</label><br>
+      <input id="query" name="query" type="text"><br><br>
+      <input type="submit" value="Search">
+    </form>
+    {% if doc_count %}
+      <p>Number of user entries: {{ doc_count }}</p>
+    {% endif %}
+
+    To count the number of characters <picture></picture><a href="home">Click Here</a> <br>
+    To count the unique words <picture></picture><a href="input_text">Click Here</a> <br>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Character Counter</title>
+</head>
+<body>
+    <form action="/count" method="POST">
+        <textarea name="text"></textarea>
+        <button type="submit">Count</button>
+    </form>
+</body>
+</html>
+count.html
+
+html
+Copy code
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Character Counter Results</title>
+</head>
+<body>
+    <p>Total number of characters: {{ char_count }}</p>
+    <p>Number of spaces: {{ space_count }}</p>
+    <p>Number of special characters (+-$*): {{ special_char_count }}</p>
+</body>
+</html>

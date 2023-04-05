@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <title>Text Search App</title>
+    </head>
+    <body>
+        <h1>Text Search App</h1>
+        <form action="/search" method="post">
+            <label for="query">Enter your search query:</label>
+            <input type="text" name="query" id="query" value="{{ query }}">
+            {% if not results %}
+                <p>No results found.</p>
+            {% endif %}
+            {% if results %}
+                <h2>Search Results:</h2>
+                <ul>
+                    {% for result in results %}
+                        <li>Document {{ result['doc_number'] }}, Line {{ result['line_number'] }}: {{ result['context'] }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </form>
+
+       
+    </body>
+</html>
