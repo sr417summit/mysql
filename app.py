@@ -17,7 +17,46 @@ docs = []
 doc_count = 0
 
 
+@app.route('/')
+def home():
+    return render_template('home.html')
 
+@app.route('/count', methods=['POST'])
+def count():
+    text = request.form['text']
+    total_chars = len(text)
+    upper_chars = sum(1 for char in text if char.isupper())
+    spaces = sum(1 for char in text if char.isspace())
+    punctuation = sum(1 for char in text if char in '.,:?$()-&')
+    numbers = sum(1 for char in text if char.isdigit())
+
+    return render_template('result.html', total_chars=total_chars, upper_chars=upper_chars, spaces=spaces, punctuation=punctuation, numbers=numbers)
+
+@app.route('/index')
+def index():
+    return render_template('index.html')
+
+@app.route('/output', methods=['POST'])
+def output():
+    text = request.form['text']
+    
+    # remove punctuation and numbers
+    text = ''.join(c for c in text if c.isalpha() or c.isspace())
+    
+    # change all letters to upper case
+    text = text.upper()
+    
+    # count number of characters
+    n = len(text)
+    
+    return render_template('output.html', result=text, count=n)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+"""""
 @app.route('/')
 def index():
     global doc_count
@@ -118,6 +157,6 @@ def output():
                            num_unique_words=num_unique_words,
                            num_spaces=num_spaces,
                            num_special_chars=num_special_chars)
-
+"""
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug = True)
