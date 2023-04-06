@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Text Analysis Results</title>
-</head>
-<body>
-    <h1>Text Analysis Results</h1>
-    <p><strong>Input Text:</strong></p>
-    <p>{{ text }}</p>
-    <p><strong>Number of Words:</strong> {{ num_words }}</p>
-    <p><strong>Number of Unique Words:</strong> {{ num_unique_words }}</p>
-    <p><strong>Number of Spaces:</strong> {{ num_spaces }}</p>
-    <p><strong>Number of Special Characters (+-$*):</strong> {{ num_special_chars }}</p>
-</body>
+    <head>
+        <title>Text Count Result</title>
+    </head>
+    <body>
+        <h1>Text Count Result</h1>
+        <label for="result">Result:</label>
+        <br>
+        <textarea id="result" name="result" rows="10" cols="50" readonly>{{ result }}</textarea>
+        <br>
+        <label for="count">Count:</label>
+        <br>
+        <input type="text" id="count" name="count" value="{{ count }}" readonly>
+    </body>
 </html>
