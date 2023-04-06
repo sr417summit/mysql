@@ -1,0 +1,17 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Word Count App</title>
+  </head>
+  <body>
+    <h1>Word Count App</h1>
+    <p>Input S: {{ input_s }}</p>
+    <p>Input T: {{ input_t }}</p>
+    <p>Total Count: {{ total_count }}</p>
+    <ul>
+      {% for word, count in word_counts.items() %}
+        <li>{{ word }}: {{ count }}</li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
