@@ -51,6 +51,29 @@ def output():
     
     return render_template('output.html', result=text, count=n)
 
+@app.route('/input1')
+def input1():
+    return render_template('input1.html')
+
+@app.route('/count1', methods=['POST'])
+def count1():
+    input_s = request.form['input_s']
+    input_t = request.form['input_t']
+
+    # Clean up input text T by removing punctuation
+    input_t = ''.join(char for char in input_t if char.isalnum() or char.isspace())
+    input_t = input_t.upper()
+
+    # Count occurrences of words from input S in input T
+    word_counts = {}
+    for word in input_s.split():
+        word_counts[word] = input_t.count(word.upper())
+
+    # Get the total count of all occurrences
+    total_count = sum(word_counts.values())
+
+    return render_template('output1.html', input_s=input_s, input_t=input_t, word_counts=word_counts, total_count=total_count)
+
 if __name__ == '__main__':
     app.run(debug=True)
 
