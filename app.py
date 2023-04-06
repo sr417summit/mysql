@@ -74,6 +74,36 @@ def count1():
 
     return render_template('output1.html', input_s=input_s, input_t=input_t, word_counts=word_counts, total_count=total_count)
 
+@app.route('/input2')
+def input2():
+    return render_template('input2.html')
+
+@app.route('/count2', methods=['POST'])
+def count2():
+    words = request.form['words']
+    text = request.form['text']
+    
+    # Remove punctuation and convert to uppercase
+    for char in text:
+        if not char.isalpha() and char != ' ':
+            text = text.replace(char, '')
+    text = text.upper()
+    
+    # Count occurrences and offsets of word pairs
+    word1, word2 = words.split()
+    count = 0
+    offsets = []
+    for i in range(len(text)-1):
+        if text[i:i+len(word1)] == word1 and text[i+len(word1):i+len(word1)+len(word2)] == word2:
+            count += 1
+            offsets.append(i)
+        elif text[i:i+len(word2)] == word2 and text[i+len(word2):i+len(word2)+len(word1)] == word1:
+            count += 1
+            offsets.append(i)
+    
+    # Display results
+    return render_template('output2.html', count=count, offsets=offsets, text=text)
+
 if __name__ == '__main__':
     app.run(debug=True)
 
